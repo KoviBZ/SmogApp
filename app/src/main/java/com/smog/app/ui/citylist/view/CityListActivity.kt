@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.smog.app.R
+import com.smog.app.dto.CitySection
 import com.smog.app.ui.app.SmogApplication
 import com.smog.app.ui.citydetails.view.CityDetailsActivity
 import com.smog.app.ui.citylist.di.CityListModule
@@ -15,7 +16,7 @@ import com.smog.app.utils.OnItemClickListener
 import kotlinx.android.synthetic.main.activity_city_list.*
 import javax.inject.Inject
 
-class CityListActivity: BaseActivity(), OnItemClickListener<String> {
+class CityListActivity: BaseActivity(), OnItemClickListener<CitySection> {
 
     @Inject
     lateinit var viewModel: CityListViewModel
@@ -50,7 +51,7 @@ class CityListActivity: BaseActivity(), OnItemClickListener<String> {
         initErrorView(messageRes, action)
     }
 
-    private fun onAllCitiesSuccess(list: List<String>) {
+    private fun onAllCitiesSuccess(list: List<CitySection>) {
         city_list_rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
         city_list_rv.adapter = CityAdapter(this, list, this)
     }
@@ -59,7 +60,7 @@ class CityListActivity: BaseActivity(), OnItemClickListener<String> {
         viewModel.getCitiesLiveData().observe(this, initObserver { onAllCitiesSuccess(it) })
     }
 
-    override fun onItemClick(item: String) {
+    override fun onItemClick(item: CitySection) {
         startActivity(CityDetailsActivity.getIntent(this, item))
     }
 }

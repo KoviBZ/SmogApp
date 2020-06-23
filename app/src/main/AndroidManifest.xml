@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ui.citylist.view.CityListActivity"/>
+        <activity android:name=".ui.citydetails.view.CityDetailsActivity"/>
     </application>
 
 </manifest>

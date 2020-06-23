@@ -1,37 +1,37 @@
 package com.smog.app.ui.citydetails.view
 
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.location.*
 import android.os.Bundle
 import android.view.View
-import androidx.core.app.ActivityCompat
 import com.smog.app.R
+import com.smog.app.dto.CitySection
 import com.smog.app.dto.DetailedSensorData
+import com.smog.app.network.dto.SensorData
 import com.smog.app.ui.app.SmogApplication
+import com.smog.app.ui.citydetails.viewmodel.CityDetailsViewModel
 import com.smog.app.ui.citylist.view.CityListActivity
 import com.smog.app.ui.common.view.BaseActivity
-import com.smog.app.ui.main.di.MainModule
 import com.smog.app.ui.main.viewmodel.MainViewModel
-import com.smog.app.utils.*
+import com.smog.app.utils.AppError
+import com.smog.app.utils.SensorDataError
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 import javax.inject.Inject
 
 class CityDetailsActivity : BaseActivity() {
 
+    lateinit var citySection: CitySection
+
+    @Inject
+    lateinit var viewModel: CityDetailsViewModel
+
     companion object {
-        fun getIntent(context: Context, cityName: String): Intent {
+        fun getIntent(context: Context, cityName: CitySection): Intent {
             val intent = Intent(context, CityDetailsActivity::class.java)
             intent.putExtra("CITY_NAME_BUNDLE", cityName)
             return intent
         }
     }
-
-    @Inject
-    lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,15 +40,20 @@ class CityDetailsActivity : BaseActivity() {
         errorView = findViewById(R.id.error_view)
         progressBar = findViewById(R.id.progress_bar)
 
+        intent?.let {
+            citySection = it.getSerializableExtra("CITY_NAME_BUNDLE") as CitySection
+        }
+
         see_all_button.setOnClickListener {
             startActivity(Intent(this, CityListActivity::class.java))
         }
 
-//        val appComponent = SmogApplication.getApplicationComponent()
+        val appComponent = SmogApplication.getApplicationComponent()
 //        val mainComponent = appComponent.plusMainComponent(MainModule())
 //        mainComponent.inject(this)
 
         setupObservers()
+        viewModel.retrieveSensorsForCity(citySection.idList)
     }
 
     override fun showErrorView(error: AppError) {
@@ -66,14 +71,9 @@ class CityDetailsActivity : BaseActivity() {
         initErrorView(messageRes, action)
     }
 
-    private fun initUi(sensorData: DetailedSensorData) {
-        city.setValue(sensorData.measureStation.city.name)
-        sensorData.measureStation.addressStreet?.let { street.setValue(it) }
-        date.setValue(sensorData.latestValue.date)
+    //TODO
+    private fun initUi(sensorData: List<SensorData>) {
 
-        smog_component.text =
-            String.format("[h]Gęstość %s wynosi:", sensorData.key)
-        smog_density.text = "${sensorData.latestValue.value}"
     }
 
     private fun setupObservers() {

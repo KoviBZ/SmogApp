@@ -8,12 +8,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.smog.app.R
+import com.smog.app.dto.CitySection
 import com.smog.app.utils.OnItemClickListener
 
 class CityAdapter(
     private val context: Context,
-    private val items: List<String>,
-    private val onItemClickListener: OnItemClickListener<String>
+    private val items: List<CitySection>,
+    private val onItemClickListener: OnItemClickListener<CitySection>
 ): RecyclerView.Adapter<CityAdapter.CityViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
@@ -32,11 +33,11 @@ class CityAdapter(
 
         private val cityName = view.findViewById<TextView>(R.id.city_name)
 
-        fun bind(name: String) {
+        fun bind(citySection: CitySection) {
             cityName.setOnClickListener {
-                onItemClickListener.onItemClick(name)
+                onItemClickListener.onItemClick(citySection)
             }
-            cityName.text = name
+            cityName.text = citySection.name
         }
     }
 }
