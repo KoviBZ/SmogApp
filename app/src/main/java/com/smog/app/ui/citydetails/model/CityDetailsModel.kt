@@ -5,5 +5,5 @@ import io.reactivex.Single
 
 interface CityDetailsModel {
 
-    fun getSensorsForCity(idList: List<Int>): Single<List<SensorData>>
+    fun getStationData(id: Int): Single<List<SensorData>>
 }

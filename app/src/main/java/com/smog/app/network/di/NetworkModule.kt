@@ -5,7 +5,9 @@ import com.smog.app.network.SmogApi
 import com.smog.app.utils.Constants
 import dagger.Module
 import dagger.Provides
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
@@ -21,6 +23,16 @@ class NetworkModule {
         val httpClient = OkHttpClient.Builder()
             .connectTimeout(Constants.TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.TIMEOUT, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                var request = chain.request()
+                val url = request.url().newBuilder().addQueryParameter(
+                    "Accept-Encoding", "identity"
+                ).build()
+
+                request = request.newBuilder().url(url).build()
+
+                chain.proceed(request)
+            }
             .build()
 
         val retrofit = Retrofit.Builder()

@@ -6,10 +6,13 @@ import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.*
 import android.os.Bundle
+import android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS
 import android.view.View
 import androidx.core.app.ActivityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.smog.app.R
-import com.smog.app.dto.DetailedSensorData
+import com.smog.app.network.dto.MeasureStation
+import com.smog.app.network.dto.SensorData
 import com.smog.app.ui.app.SmogApplication
 import com.smog.app.ui.citylist.view.CityListActivity
 import com.smog.app.ui.common.view.BaseActivity
@@ -72,20 +75,20 @@ class MainActivity : BaseActivity(), LocationListener {
             if (grantResults.size == 1 && grantResults[0] == PERMISSION_GRANTED) {
                 getCoordinates()
             } else {
-                // Failure Stuff
+                showErrorView(PermissionError)
             }
         }
     }
 
     override fun onLocationChanged(location: Location) {
         val geoCoder = Geocoder(this, Locale.getDefault())
-        val lat = location.latitude
-        val lon = location.longitude
+        val lat = 50.445160 // location.latitude
+        val lon = 20.725160 // location.longitude
         val address: List<Address> = geoCoder.getFromLocation(lat, lon, 1)
 
-        val cityName = address[0].locality
+        val districtName = address[0].adminArea
 
-        viewModel.retrieveSensorId(lat, lon, cityName)
+        viewModel.retrieveNearestStation(lat, lon, districtName)
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
@@ -109,45 +112,54 @@ class MainActivity : BaseActivity(), LocationListener {
                 messageRes = R.string.location_error_message
                 action = View.OnClickListener { getCoordinates() }
             }
-            is SensorIdError -> {
-                messageRes = R.string.sensor_id_error_message
+            is FindAllError -> {
+                content.visibility = View.GONE
+
+                messageRes = R.string.location_error_message
                 action = View.OnClickListener { getCoordinates() }
             }
             is SensorDataError -> {
                 messageRes = R.string.sensor_data_error_message
-                action = View.OnClickListener { viewModel.findNextStation(error.wrongId) }
+                action = View.OnClickListener { viewModel.retrieveSensorData(error.id) }
             }
-            else -> throw IllegalArgumentException("AppError not supported")
         }
 
         initErrorView(messageRes, action)
     }
 
     private fun FAKEobtainData() {
-        viewModel.retrieveSensorId(50.088900, 19.934860, "Kraków")
+        viewModel.retrieveNearestStation(50.088900, 19.934860, "Kraków")
     }
 
     private fun getCoordinates() {
-        try {
-            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10f, this)
+        val manager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        } catch (e: SecurityException) {
-            e.printStackTrace()
+        if (manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            try {
+                manager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10f, this)
+            } catch (e: SecurityException) {
+                e.printStackTrace()
+            }
+        } else {
+            startActivity(Intent(ACTION_LOCATION_SOURCE_SETTINGS))
         }
     }
 
-    private fun initUi(sensorData: DetailedSensorData) {
-        city.setValue(sensorData.measureStation.city.name)
-        sensorData.measureStation.addressStreet?.let { street.setValue(it) }
-        date.setValue(sensorData.latestValue.date)
+    private fun onStationSuccess(measureStation: MeasureStation) {
+        city.setValue(measureStation.city.name)
+        measureStation.addressStreet?.let { street.setValue(it) }
 
-        smog_component.text =
-            String.format("[h]Gęstość %s wynosi:", sensorData.key)
-        smog_density.text = "${sensorData.latestValue.value}"
+        viewModel.retrieveSensorData(measureStation.id)
+    }
+
+    private fun onSensorDataSuccess(sensorList: List<SensorData>) {
+        smog_rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        smog_rv.adapter = SmogAdapter(this, sensorList)
     }
 
     private fun setupObservers() {
-        viewModel.getSensorLiveData().observe(this, initObserver { initUi(it) })
+        viewModel.getStationLiveData().observe(this, initObserver { onStationSuccess(it) })
+
+        viewModel.getSensorLiveData().observe(this, initObserver { onSensorDataSuccess(it) })
     }
 }

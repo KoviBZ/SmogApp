@@ -3,6 +3,7 @@ package com.smog.app.ui.citylist.viewmodel
 import androidx.lifecycle.MutableLiveData
 import com.smog.app.dto.CitySection
 import com.smog.app.network.Resource
+import com.smog.app.network.dto.MeasureStation
 import com.smog.app.network.scheduler.BaseSchedulerProvider
 import com.smog.app.ui.citylist.model.CityListModel
 import com.smog.app.ui.common.viewmodel.BaseViewModel
@@ -13,7 +14,7 @@ class CityListViewModel(
     schedulerProvider: BaseSchedulerProvider
 ): BaseViewModel(schedulerProvider) {
 
-    private val citiesLiveData = MutableLiveData<Resource<List<CitySection>>>()
+    private val citiesLiveData = MutableLiveData<Resource<List<MeasureStation>>>()
 
     fun getCitiesLiveData() = citiesLiveData
 

@@ -1,11 +1,9 @@
 package com.smog.app.ui.main.model
 
-import com.smog.app.dto.DetailedSensorData
 import com.smog.app.network.SmogApi
 import com.smog.app.network.dto.MeasureStation
 import com.smog.app.network.dto.SensorData
-import com.smog.app.utils.SensorDataError
-import com.smog.app.utils.SensorIdError
+import io.reactivex.Observable
 import io.reactivex.Single
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -19,12 +17,12 @@ class DefaultMainModel(
     override fun getNearestStation(
         latitude: Double,
         longitude: Double,
-        cityName: String
-    ): Single<DetailedSensorData> {
+        adminArea: String
+    ): Single<MeasureStation> {
         return smogApi.findAllStations()
             .flatMap { stations ->
                 val filteredList = stations.filter {
-                    it.city.name == cityName
+                    it.city.commune.provinceName.equals(adminArea, ignoreCase = true)
                 }
 
                 allStations.clear()
@@ -38,28 +36,11 @@ class DefaultMainModel(
             }
     }
 
-    override fun findNextStation(emptyId: Int): Single<DetailedSensorData> {
-        val iterator = allStations.iterator()
-        var lat: Double = 0.0
-        var lon: Double = 0.0
-
-        while (iterator.hasNext()) {
-            val currentItem = iterator.next()
-            if (currentItem.id == emptyId) {
-                lat = currentItem.gegrLat
-                lon = currentItem.gegrLon
-                iterator.remove()
-            }
-        }
-
-        return findNearestStation(lat, lon, allStations)
-    }
-
     private fun findNearestStation(
         latitude: Double,
         longitude: Double,
         list: List<MeasureStation>
-    ): Single<DetailedSensorData> {
+    ): Single<MeasureStation> {
         var nearestStation: MeasureStation? = null
         var lastNearestDistance = 0.0
 
@@ -74,25 +55,18 @@ class DefaultMainModel(
             }
         }
 
-        nearestStation?.let { station ->
-            return smogApi.getSensorData(station.id)
-                .map { sensorData ->
-                    val sensorValues = sensorData.values.filter {
-                        it.value > 0
-                    }
+        return Single.just(nearestStation)
+    }
 
-                    if (sensorValues.isEmpty()) {
-                        throw SensorDataError(station.id)
-                    }
-
-                    DetailedSensorData(
-                        station,
-                        sensorData.key,
-                        sensorValues[0]
-                    )
-                }
-        }
-
-        throw SensorIdError
+    override fun getStationData(stationId: Int): Single<List<SensorData>> {
+        return smogApi.getStationSensors(stationId)
+            .flatMap { stations ->
+                Observable.fromIterable(stations)
+                    .flatMapSingle {
+                        smogApi.getSensorData(it.id)
+                    }.filter { sensorData ->
+                        sensorData.values.isNotEmpty() && sensorData.values[0].value > 0.0
+                    }.toList()
+            }
     }
 }

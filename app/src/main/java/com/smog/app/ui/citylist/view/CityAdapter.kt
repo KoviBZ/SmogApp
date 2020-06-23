@@ -9,12 +9,13 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.smog.app.R
 import com.smog.app.dto.CitySection
+import com.smog.app.network.dto.MeasureStation
 import com.smog.app.utils.OnItemClickListener
 
 class CityAdapter(
     private val context: Context,
-    private val items: List<CitySection>,
-    private val onItemClickListener: OnItemClickListener<CitySection>
+    private val items: List<MeasureStation>,
+    private val onItemClickListener: OnItemClickListener<MeasureStation>
 ): RecyclerView.Adapter<CityAdapter.CityViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CityViewHolder {
@@ -33,11 +34,11 @@ class CityAdapter(
 
         private val cityName = view.findViewById<TextView>(R.id.city_name)
 
-        fun bind(citySection: CitySection) {
+        fun bind(citySection: MeasureStation) {
             cityName.setOnClickListener {
                 onItemClickListener.onItemClick(citySection)
             }
-            cityName.text = citySection.name
+            cityName.text = "${citySection.city.name}, ${citySection.addressStreet}"
         }
     }
 }

@@ -4,56 +4,53 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.smog.app.R
-import com.smog.app.dto.CitySection
-import com.smog.app.dto.DetailedSensorData
+import com.smog.app.network.dto.MeasureStation
 import com.smog.app.network.dto.SensorData
 import com.smog.app.ui.app.SmogApplication
+import com.smog.app.ui.citydetails.di.CityDetailsModule
 import com.smog.app.ui.citydetails.viewmodel.CityDetailsViewModel
-import com.smog.app.ui.citylist.view.CityListActivity
 import com.smog.app.ui.common.view.BaseActivity
-import com.smog.app.ui.main.viewmodel.MainViewModel
+import com.smog.app.ui.main.view.SmogAdapter
 import com.smog.app.utils.AppError
+import com.smog.app.utils.Constants
 import com.smog.app.utils.SensorDataError
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_city_list.*
 import javax.inject.Inject
 
 class CityDetailsActivity : BaseActivity() {
 
-    lateinit var citySection: CitySection
+    var stationId: Int = -1
 
     @Inject
     lateinit var viewModel: CityDetailsViewModel
 
     companion object {
-        fun getIntent(context: Context, cityName: CitySection): Intent {
+        fun getIntent(context: Context, stationId: Int): Intent {
             val intent = Intent(context, CityDetailsActivity::class.java)
-            intent.putExtra("CITY_NAME_BUNDLE", cityName)
+            intent.putExtra(Constants.SENSOR_ID_BUNDLE, stationId)
             return intent
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_city_list)
 
         errorView = findViewById(R.id.error_view)
         progressBar = findViewById(R.id.progress_bar)
 
         intent?.let {
-            citySection = it.getSerializableExtra("CITY_NAME_BUNDLE") as CitySection
-        }
-
-        see_all_button.setOnClickListener {
-            startActivity(Intent(this, CityListActivity::class.java))
+            stationId = it.getIntExtra(Constants.SENSOR_ID_BUNDLE, -1)
         }
 
         val appComponent = SmogApplication.getApplicationComponent()
-//        val mainComponent = appComponent.plusMainComponent(MainModule())
-//        mainComponent.inject(this)
+        val cityDetailsComponent = appComponent.plusCityDetailsComponent(CityDetailsModule())
+        cityDetailsComponent.inject(this)
 
         setupObservers()
-        viewModel.retrieveSensorsForCity(citySection.idList)
+        viewModel.retrieveSensorData(stationId)
     }
 
     override fun showErrorView(error: AppError) {
@@ -63,7 +60,7 @@ class CityDetailsActivity : BaseActivity() {
         when (error) {
             is SensorDataError -> {
                 messageRes = R.string.sensor_data_error_message
-                action = View.OnClickListener { viewModel.findNextStation(error.wrongId) }
+                action = View.OnClickListener { viewModel.retrieveSensorData(stationId) }
             }
             else -> throw IllegalArgumentException("AppError not supported")
         }
@@ -71,9 +68,9 @@ class CityDetailsActivity : BaseActivity() {
         initErrorView(messageRes, action)
     }
 
-    //TODO
     private fun initUi(sensorData: List<SensorData>) {
-
+        city_list_rv.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        city_list_rv.adapter = SmogAdapter(this, sensorData)
     }
 
     private fun setupObservers() {

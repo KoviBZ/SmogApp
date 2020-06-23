@@ -8,6 +8,4 @@ object LocalizationError : AppError()
 
 object FindAllError : AppError()
 
-object SensorIdError : AppError()
-
-class SensorDataError(val wrongId: Int) : AppError()
+class SensorDataError(val id: Int) : AppError()
