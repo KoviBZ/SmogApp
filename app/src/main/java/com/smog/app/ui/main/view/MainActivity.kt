@@ -83,7 +83,15 @@ class MainActivity : BaseActivity(), LocationListener {
     }
 
     override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        //intentionally left empty to prevent crash
+        //intentionally left empty
+    }
+
+    override fun onProviderEnabled(provider: String) {
+        //intentionally left empty
+    }
+
+    override fun onProviderDisabled(provider: String) {
+        getCoordinates()
     }
 
     override fun showErrorView(error: AppError) {
@@ -97,13 +105,7 @@ class MainActivity : BaseActivity(), LocationListener {
                 messageRes = R.string.permission_error_message
                 action = View.OnClickListener { obtainLocalization() }
             }
-            is LocalizationError -> {
-                content.visibility = View.GONE
-
-                messageRes = R.string.location_error_message
-                action = View.OnClickListener { getCoordinates() }
-            }
-            is FindAllError -> {
+            is LocalizationError, FindAllError -> {
                 content.visibility = View.GONE
 
                 messageRes = R.string.location_error_message

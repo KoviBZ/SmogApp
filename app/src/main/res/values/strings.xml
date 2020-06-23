@@ -3,7 +3,7 @@
 
     <string name="permission_error_message">Odmówiono dostępu do lokalizacji.</string>
     <string name="location_error_message">Nie można odnaleźć lokalizacji.</string>
-    <string name="fina_all_error_message">Błąd poczas pobierania listy miast.</string>
+    <string name="find_all_error_message">Błąd poczas pobierania listy miast.</string>
     <string name="sensor_data_error_message">Najbliższa stacja pomiarowa nie zwróciła danych.</string>
 
     <string name="retry_button">Ponów próbę</string>

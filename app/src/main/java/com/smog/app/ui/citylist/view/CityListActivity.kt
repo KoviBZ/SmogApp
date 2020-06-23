@@ -42,7 +42,7 @@ class CityListActivity: BaseActivity(), OnItemClickListener<MeasureStation> {
 
         when (error) {
             is FindAllError -> {
-                messageRes = R.string.sensor_data_error_message
+                messageRes = R.string.find_all_error_message
                 action = View.OnClickListener { viewModel.findAllCitiesDetailed() }
             }
             else -> throw IllegalArgumentException("AppError not supported")
