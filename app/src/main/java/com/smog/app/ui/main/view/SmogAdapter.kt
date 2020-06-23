@@ -26,7 +26,7 @@ class SmogAdapter(
         holder.bind(items[position])
     }
 
-    class SmogViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+    inner class SmogViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 
         private val smogComponent = view.findViewById<TextView>(R.id.smog_component)
         private val smogDensity = view.findViewById<TextView>(R.id.smog_density)
@@ -34,14 +34,13 @@ class SmogAdapter(
         fun bind(sensorData: SensorData) {
             if (sensorData.values.isNotEmpty()) {
                 smogComponent.text = String.format(
-                    "[h]Gęstość %s z dnia %s wynosi:",
+                    context.getString(R.string.density_label_success),
                     sensorData.key,
                     sensorData.values[0].date
                 )
                 smogDensity.text = "${sensorData.values[0].value}"
             } else {
-                smogComponent.text =
-                    String.format("[h]Brak wyników")
+                smogComponent.text = context.getString(R.string.density_label_success)
             }
         }
     }

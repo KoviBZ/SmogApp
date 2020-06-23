@@ -1,6 +1,7 @@
 package com.smog.app.ui.main.view
 
 import android.Manifest
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -47,20 +48,10 @@ class MainActivity : BaseActivity(), LocationListener {
         obtainLocalization()
     }
 
-    private fun obtainLocalization() {
-        val localizationPermission = Manifest.permission.ACCESS_FINE_LOCATION
-
-        if (ActivityCompat.checkSelfPermission(
-                this, localizationPermission
-            ) != PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(localizationPermission),
-                Constants.LOCALIZATION_REQUEST_CODE
-            )
-        } else {
-            getCoordinates()
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == Constants.GPS_REQUEST_CODE) {
+            obtainLocalization()
         }
     }
 
@@ -82,8 +73,8 @@ class MainActivity : BaseActivity(), LocationListener {
 
     override fun onLocationChanged(location: Location) {
         val geoCoder = Geocoder(this, Locale.getDefault())
-        val lat = 50.445160 // location.latitude
-        val lon = 20.725160 // location.longitude
+        val lat = location.latitude
+        val lon = location.longitude
         val address: List<Address> = geoCoder.getFromLocation(lat, lon, 1)
 
         val districtName = address[0].adminArea
@@ -127,8 +118,21 @@ class MainActivity : BaseActivity(), LocationListener {
         initErrorView(messageRes, action)
     }
 
-    private fun FAKEobtainData() {
-        viewModel.retrieveNearestStation(50.088900, 19.934860, "Kraków")
+    private fun obtainLocalization() {
+        val localizationPermission = Manifest.permission.ACCESS_FINE_LOCATION
+
+        if (ActivityCompat.checkSelfPermission(
+                this, localizationPermission
+            ) != PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(localizationPermission),
+                Constants.LOCALIZATION_REQUEST_CODE
+            )
+        } else {
+            getCoordinates()
+        }
     }
 
     private fun getCoordinates() {
@@ -141,7 +145,15 @@ class MainActivity : BaseActivity(), LocationListener {
                 e.printStackTrace()
             }
         } else {
-            startActivity(Intent(ACTION_LOCATION_SOURCE_SETTINGS))
+            AlertDialog.Builder(this)
+                .setCancelable(false)
+                .setMessage(R.string.gps_dialog)
+                .setNeutralButton(android.R.string.ok
+                ) { dialog, _ ->
+                    startActivityForResult(Intent(ACTION_LOCATION_SOURCE_SETTINGS), Constants.GPS_REQUEST_CODE)
+                    dialog.dismiss()
+                }.create()
+                .show()
         }
     }
 

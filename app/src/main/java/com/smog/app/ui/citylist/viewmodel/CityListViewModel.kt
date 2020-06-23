@@ -1,7 +1,6 @@
 package com.smog.app.ui.citylist.viewmodel
 
 import androidx.lifecycle.MutableLiveData
-import com.smog.app.dto.CitySection
 import com.smog.app.network.Resource
 import com.smog.app.network.dto.MeasureStation
 import com.smog.app.network.scheduler.BaseSchedulerProvider

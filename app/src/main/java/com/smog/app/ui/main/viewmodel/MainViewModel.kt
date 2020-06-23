@@ -27,9 +27,9 @@ class MainViewModel(
         stationLiveData.postValue(Resource.loading())
         val disposable = mainModel.getNearestStation(latitude, longitude, districtName)
             .applyDefaultIOSchedulers()
-            .subscribe({ response ->
-                stationLiveData.postValue(Resource.success(response))
-            }, { stationLiveData.postValue(Resource.error(FindAllError)) }
+            .subscribe(
+                { response -> stationLiveData.postValue(Resource.success(response)) },
+                { stationLiveData.postValue(Resource.error(FindAllError)) }
             )
 
         subscriptions.add(disposable)
@@ -37,12 +37,11 @@ class MainViewModel(
 
     fun retrieveSensorData(id: Int) {
         sensorLiveData.postValue(Resource.loading())
-        val disposable = mainModel.getStationData(id)
+        val disposable = mainModel.getSensorsData(id)
             .applyDefaultIOSchedulers()
-            .subscribe({ response -> sensorLiveData.postValue(Resource.success(response)) },
-                {
-                    sensorLiveData.postValue(Resource.error(SensorDataError(id)))
-                }
+            .subscribe(
+                { response -> sensorLiveData.postValue(Resource.success(response)) },
+                { sensorLiveData.postValue(Resource.error(SensorDataError(id))) }
             )
 
         subscriptions.add(disposable)

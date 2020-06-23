@@ -6,15 +6,18 @@
 
     <TextView
         android:id="@+id/row_label"
-        android:layout_weight="0.3"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"/>
+        android:layout_weight="0.4"
+        android:gravity="end"
+        android:padding="8dp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/row_value"
-        android:layout_weight="0.7"
         android:layout_width="0dp"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_weight="0.6"
+        android:padding="8dp" />
 
 </LinearLayout>

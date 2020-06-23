@@ -58,7 +58,7 @@ class DefaultMainModel(
         return Single.just(nearestStation)
     }
 
-    override fun getStationData(stationId: Int): Single<List<SensorData>> {
+    override fun getSensorsData(stationId: Int): Single<List<SensorData>> {
         return smogApi.getStationSensors(stationId)
             .flatMap { stations ->
                 Observable.fromIterable(stations)

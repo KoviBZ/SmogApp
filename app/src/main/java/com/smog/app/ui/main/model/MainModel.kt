@@ -8,5 +8,5 @@ interface MainModel {
 
     fun getNearestStation(latitude: Double, longitude: Double, adminArea: String): Single<MeasureStation>
 
-    fun getStationData(stationId: Int): Single<List<SensorData>>
+    fun getSensorsData(stationId: Int): Single<List<SensorData>>
 }

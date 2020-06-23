@@ -1,10 +1,19 @@
 <resources>
     <string name="app_name">SmogApp</string>
 
-    <string name="permission_error_message">Location permission was not granted.</string>
-    <string name="location_error_message">Location could not be found.</string>
-    <string name="sensor_id_error_message">Nearest sensor does not contain any data.</string>
-    <string name="sensor_data_error_message">Data could not be retrieved.</string>
+    <string name="permission_error_message">Odmówiono dostępu do lokalizacji.</string>
+    <string name="location_error_message">Nie można odnaleźć lokalizacji.</string>
+    <string name="fina_all_error_message">Błąd poczas pobierania listy miast.</string>
+    <string name="sensor_data_error_message">Najbliższa stacja pomiarowa nie zwróciła danych.</string>
 
-    <string name="retry_button">Retry</string>
+    <string name="retry_button">Ponów próbę</string>
+
+    <string name="gps_dialog">Aplikacja potrzebuje włączonego GPSa.</string>
+
+    <string name="density_label_success">Gęstość %s z dnia %s wynosi:</string>
+    <string name="density_label_empty">Brak wyników</string>
+
+    <string name="city">Miasto</string>
+    <string name="address">Adres</string>
+    <string name="see_all_cities">Zobacz miasta</string>
 </resources>

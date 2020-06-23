@@ -32,13 +32,13 @@
 
             <com.smog.app.view.DataRow
                 android:id="@+id/city"
-                app:label="[h]City"
+                app:label="@string/city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
             <com.smog.app.view.DataRow
                 android:id="@+id/street"
-                app:label="[h]Address"
+                app:label="@string/address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
@@ -51,7 +51,7 @@
 
         <Button
             android:id="@+id/see_all_button"
-            android:text="[h]See all cities"
+            android:text="@string/see_all_cities"
             android:layout_margin="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

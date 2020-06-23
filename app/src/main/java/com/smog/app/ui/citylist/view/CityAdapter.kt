@@ -4,11 +4,9 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.smog.app.R
-import com.smog.app.dto.CitySection
 import com.smog.app.network.dto.MeasureStation
 import com.smog.app.utils.OnItemClickListener
 

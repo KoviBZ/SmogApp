@@ -23,16 +23,7 @@ class NetworkModule {
         val httpClient = OkHttpClient.Builder()
             .connectTimeout(Constants.TIMEOUT, TimeUnit.SECONDS)
             .readTimeout(Constants.TIMEOUT, TimeUnit.SECONDS)
-            .addInterceptor { chain ->
-                var request = chain.request()
-                val url = request.url().newBuilder().addQueryParameter(
-                    "Accept-Encoding", "identity"
-                ).build()
-
-                request = request.newBuilder().url(url).build()
-
-                chain.proceed(request)
-            }
+            .retryOnConnectionFailure(true)
             .build()
 
         val retrofit = Retrofit.Builder()
