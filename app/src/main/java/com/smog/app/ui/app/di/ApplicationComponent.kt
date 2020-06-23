@@ -1,5 +1,7 @@
 package com.smog.app.ui.app.di
 
+import com.smog.app.ui.citylist.di.CityListComponent
+import com.smog.app.ui.citylist.di.CityListModule
 import com.smog.app.ui.main.di.MainComponent
 import com.smog.app.ui.main.di.MainModule
 import dagger.Component
@@ -12,4 +14,6 @@ import dagger.Component
 interface ApplicationComponent {
 
     fun plusMainComponent(mainModule: MainModule): MainComponent
+
+    fun plusCityListComponent(cityListModule: CityListModule): CityListComponent
 }

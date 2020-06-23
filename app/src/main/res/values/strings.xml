@@ -3,7 +3,7 @@
 
     <string name="permission_error_message">Location permission was not granted.</string>
     <string name="location_error_message">Location could not be found.</string>
-    <string name="sensor_id_error_message">Data could not be retrieved.</string>
+    <string name="sensor_id_error_message">Nearest sensor does not contain any data.</string>
     <string name="sensor_data_error_message">Data could not be retrieved.</string>
 
     <string name="retry_button">Retry</string>

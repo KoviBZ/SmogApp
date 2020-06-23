@@ -1,41 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/content"
-        android:orientation="vertical"
-        android:gravity="center"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <com.smog.app.view.ErrorView
             android:id="@+id/error_view"
-            tools:visibility="visible"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:visibility="gone"
-            android:layout_width="match_parent"
+            tools:visibility="visible" />
+
+        <LinearLayout
+            android:id="@+id/content"
+            app:layout_constraintBottom_toTopOf="@id/see_all_button"
+            app:layout_constraintTop_toBottomOf="@id/error_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical">
+
+            <com.smog.app.view.DataRow
+                android:id="@+id/city"
+                app:label="[h]City"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.smog.app.view.DataRow
+                android:id="@+id/street"
+                app:label="[h]Address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <com.smog.app.view.DataRow
+                android:id="@+id/date"
+                app:label="[h]Date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_gravity="center_horizontal"
+                android:id="@+id/smog_component"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/smog_density"
+                android:textSize="36sp"
+                android:layout_gravity="center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/see_all_button"
+            android:text="[h]See all cities"
+            android:layout_margin="16dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"/>
 
-        <TextView
-            android:id="@+id/density_label"
-            android:text="[h]Stężenie z dnia: 2020-06-23 14:00:00"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/density_value"
-            android:text="12.0978"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        android:layout_gravity="center"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_gravity="center" />
 
 </FrameLayout>

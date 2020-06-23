@@ -2,30 +2,25 @@ package com.smog.app.ui.main.view
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.*
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.lifecycle.Observer
 import com.smog.app.R
-import com.smog.app.network.Resource
-import com.smog.app.network.Status
+import com.smog.app.dto.DetailedSensorData
 import com.smog.app.ui.app.SmogApplication
+import com.smog.app.ui.citylist.view.CityListActivity
+import com.smog.app.ui.common.view.BaseActivity
 import com.smog.app.ui.main.di.MainModule
 import com.smog.app.ui.main.viewmodel.MainViewModel
 import com.smog.app.utils.*
-import com.smog.app.view.ErrorView
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.Locale
+import java.util.*
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), LocationListener {
-
-    lateinit var errorView: ErrorView
-    lateinit var progressBar: ErrorView
+class MainActivity : BaseActivity(), LocationListener {
 
     @Inject
     lateinit var viewModel: MainViewModel
@@ -37,10 +32,15 @@ class MainActivity : AppCompatActivity(), LocationListener {
         errorView = findViewById(R.id.error_view)
         progressBar = findViewById(R.id.progress_bar)
 
+        see_all_button.setOnClickListener {
+            startActivity(Intent(this, CityListActivity::class.java))
+        }
+
         val appComponent = SmogApplication.getApplicationComponent()
         val mainComponent = appComponent.plusMainComponent(MainModule())
         mainComponent.inject(this)
 
+        setupObservers()
         obtainLocalization()
     }
 
@@ -77,16 +77,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         }
     }
 
-    private fun getCoordinates() {
-        try {
-            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10f, this)
-
-        } catch (e: SecurityException) {
-            e.printStackTrace()
-        }
-    }
-
     override fun onLocationChanged(location: Location) {
         val geoCoder = Geocoder(this, Locale.getDefault())
         val lat = location.latitude
@@ -98,7 +88,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
         viewModel.retrieveSensorId(lat, lon, cityName)
     }
 
-    private fun showErrorView(error: AppError) {
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        //intentionally left empty to prevent crash
+    }
+
+    override fun showErrorView(error: AppError) {
         val messageRes: Int
         val action: View.OnClickListener
 
@@ -121,51 +115,39 @@ class MainActivity : AppCompatActivity(), LocationListener {
             }
             is SensorDataError -> {
                 messageRes = R.string.sensor_data_error_message
-                action = View.OnClickListener { getCoordinates() }
+                action = View.OnClickListener { viewModel.findNextStation(error.wrongId) }
             }
+            else -> throw IllegalArgumentException("AppError not supported")
         }
 
         initErrorView(messageRes, action)
     }
 
-    private fun initErrorView(@StringRes message: Int, onClickListener: View.OnClickListener) {
-        errorView.apply {
-            enableRetryButton()
-            setErrorMessage(getString(message))
-            setRetryAction(onClickListener)
-            visibility = View.VISIBLE
+    private fun FAKEobtainData() {
+        viewModel.retrieveSensorId(50.088900, 19.934860, "Kraków")
+    }
+
+    private fun getCoordinates() {
+        try {
+            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10f, this)
+
+        } catch (e: SecurityException) {
+            e.printStackTrace()
         }
     }
 
-    private fun <T> initObserver(success: (T) -> Unit): Observer<Resource<T>> {
-        return Observer { response ->
-            when (response.status) {
-                Status.SUCCESS -> {
-                    hideErrorView()
-                    hideProgress()
-                }
-                Status.LOADING -> {
-                    showProgress()
-                }
-                Status.ERROR -> {
-                    hideProgress()
-                }
-            }
+    private fun initUi(sensorData: DetailedSensorData) {
+        city.setValue(sensorData.measureStation.city.name)
+        sensorData.measureStation.addressStreet?.let { street.setValue(it) }
+        date.setValue(sensorData.latestValue.date)
 
-            response.data?.let { success(it) }
-            response.error?.let { showErrorView(it) }
-        }
+        smog_component.text =
+            String.format("[h]Gęstość %s wynosi:", sensorData.key)
+        smog_density.text = "${sensorData.latestValue.value}"
     }
 
-    private fun showProgress() {
-        progressBar.visibility = View.VISIBLE
-    }
-
-    private fun hideProgress() {
-        progressBar.visibility = View.GONE
-    }
-
-    private fun hideErrorView() {
-        errorView.visibility = View.GONE
+    private fun setupObservers() {
+        viewModel.getSensorLiveData().observe(this, initObserver { initUi(it) })
     }
 }

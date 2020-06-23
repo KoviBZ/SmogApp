@@ -6,6 +6,8 @@ object PermissionError : AppError()
 
 object LocalizationError : AppError()
 
+object FindAllError : AppError()
+
 object SensorIdError : AppError()
 
-object SensorDataError : AppError()
+class SensorDataError(val wrongId: Int) : AppError()
